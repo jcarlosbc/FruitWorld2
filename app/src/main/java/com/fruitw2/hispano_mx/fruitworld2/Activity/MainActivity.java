@@ -6,7 +6,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +21,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private List<Fruta> list_frutas;
     private RecyclerView recycler;
+    private RecyclerView.LayoutManager layoutManager;
     private FrutaAdapter adapterFruta;
 
     @Override
@@ -30,19 +30,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         list_frutas = getListaFrutasDefault();
-
         recycler = (RecyclerView) findViewById(R.id.recycler_view);
-        recycler.setLayoutManager(new LinearLayoutManager(this));
+        layoutManager = new LinearLayoutManager(this);
+        recycler.setLayoutManager(layoutManager);
         recycler.setHasFixedSize(true);
         recycler.setItemAnimator(new DefaultItemAnimator());
 
-        adapterFruta = new FrutaAdapter(list_frutas);
-        adapterFruta.setOnJCClickListener(new View.OnClickListener() {
+        adapterFruta = new FrutaAdapter(list_frutas, R.layout.fruit_item, this, new FrutaAdapter.OnMyItemClickListener() {
             @Override
-            public void onClick(View v) {
-                Log.i("MainActivity", "onCreate.onClick");
+            public void onItemJCBClick(Fruta fruta, int position) {
+                fruta.addCantidad();
+                adapterFruta.notifyItemChanged(position);
             }
         });
+        registerForContextMenu(recycler);
 
         recycler.setAdapter(adapterFruta);
 
@@ -55,18 +56,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
-        menu.setHeaderTitle(list_frutas.get(info.position).getNombre());
-        menu.setHeaderIcon(list_frutas.get(info.position).getIcono());
-        getMenuInflater().inflate(R.menu.context_menu_furta,menu);
-
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.add_name:
+                Log.i("MainActivity", "onOptionsItemSelected>>>nueva fruta");
+                list_frutas.add(0,new Fruta("Nueva Fruta","Nueva",0,R.mipmap.ic_manzana, R.drawable.apple_ic));
+                adapterFruta.notifyItemInserted(0);
+                layoutManager.scrollToPosition(0);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -75,32 +71,12 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-        switch (item.getItemId()){
-            case R.id.delete_item:
-                /*fruits.remove(info.position);
-                adapter.notifyDataSetChanged();
-                adapter_grid.notifyDataSetChanged();*/
-                return true;
-            case R.id.reset_item:
-                return true;
-
-            default:
-                return super.onContextItemSelected(item);
-        }
-    }
-
     public List<Fruta> getListaFrutasDefault() {
         return new ArrayList<Fruta>() {{
-            add(new Fruta("Manzana","Fruta antioxidante", "1",R.drawable.apple_bg, R.drawable.apple_ic));
-            add(new Fruta("Platano","Fruta rica en potasio","2",R.drawable.banana_bg, R.drawable.banana_ic));
-            add(new Fruta("Cereza","Fruta antioxidante","3",R.drawable.cherry_bg,R.drawable.cherry_ic));
-            add(new Fruta("Naranja","Fruta con vitamina C","4",R.drawable.orange_bg, R.drawable.orange_ic));
-            /*add(new Fruta("Pera","Fruta cara","5",R.drawable.pear_bg, R.drawable.pear_ic));
-            add(new Fruta("Mora","Fruta antioxidante","6",R.drawable.raspberry_bg,R.drawable.raspberry_ic));
-            add(new Fruta("Fresa","Fruta afrodicica","7",R.drawable.strawberry_bg, R.drawable.strawberry_ic));*/
+            add(new Fruta("Manzana","Fruta antioxidante", 1,R.mipmap.ic_manzana, R.drawable.apple_ic));
+            add(new Fruta("Platano","Fruta rica en potasio",2,R.mipmap.ic_platano, R.drawable.banana_ic));
+            add(new Fruta("Cereza","Fruta antioxidante",3,R.mipmap.ic_cereza,R.drawable.cherry_ic));
+            add(new Fruta("Naranja","Fruta con vitamina C",4,R.mipmap.ic_naranja, R.drawable.orange_ic));
         }};
     }
 }
