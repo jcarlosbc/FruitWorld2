@@ -1,5 +1,6 @@
 package com.fruitw2.hispano_mx.fruitworld2.Activity;
 
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -47,6 +48,17 @@ public class MainActivity extends AppCompatActivity {
 
         recycler.setAdapter(adapterFruta);
 
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i("MainActivity", "onClick>>>nueva fruta fab");
+                list_frutas.add(0,new Fruta("Nueva Fruta","Nueva",0,R.mipmap.ic_manzana, R.drawable.apple_ic));
+                adapterFruta.notifyItemInserted(0);
+                layoutManager.scrollToPosition(0);
+            }
+        });
+
     }
 
     @Override
@@ -79,4 +91,6 @@ public class MainActivity extends AppCompatActivity {
             add(new Fruta("Naranja","Fruta con vitamina C",4,R.mipmap.ic_naranja, R.drawable.orange_ic));
         }};
     }
+
+
 }
